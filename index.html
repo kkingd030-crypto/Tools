@@ -1,357 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transform Photos into 4K Cinema Video Instantly</title>
-    <!-- Tailwind CSS CDN -->
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
+    <title>AI Video Studio — Free 4K Access</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter for clean, modern look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons for professional UI -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        syne: ['Syne', 'sans-serif'], 
+                        dm: ['DM Sans', 'sans-serif'] 
+                    },
+                    colors: {
+                        brand: {
+                            light: '#A78BFA',
+                            DEFAULT: '#7C3AED',
+                            dark: '#5B21B6',
+                            deep: '#080514'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            color: #ffffff;
+            background: #080514;
+            font-family: 'DM Sans', sans-serif;
+            color: #DDD6FE;
             overflow-x: hidden;
         }
-
-        /* Custom Gradients and Glassmorphism */
-        .bg-gradient-purple {
-            background: radial-gradient(circle at top center, #3b0764 0%, #050505 100%);
+        
+        /* Background Glows */
+        .bg-glow::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse 70% 50% at 10% 5%, rgba(59, 20, 114, 0.4), transparent 55%),
+                radial-gradient(ellipse 50% 40% at 90% 85%, rgba(30, 10, 74, 0.35), transparent 50%);
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
+        /* Glassmorphism */
+        .glass {
+            background: rgba(124, 58, 237, 0.07);
+            border: 1px solid rgba(167, 139, 250, 0.15);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 1.5rem;
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .text-gradient {
-            background: linear-gradient(135deg, #d8b4fe 0%, #8b5cf6 100%);
+        /* Shimmer Effect */
+        .shimmer-text {
+            background: linear-gradient(90deg, #A78BFA, #fff 45%, #C4B5FD 60%, #A78BFA);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
 
-        .btn-pulse {
-            animation: pulse-purple 2s infinite;
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px 2px rgba(124, 58, 237, 0.3); }
+            50% { box-shadow: 0 0 40px 8px rgba(124, 58, 237, 0.5); }
         }
 
-        @keyframes pulse-purple {
-            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        .btn-primary {
+            background: linear-gradient(135deg, #7C3AED, #5B21B6);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            transition: all 0.2s ease;
+            animation: pulse-glow 2.5s infinite;
+        }
+        .btn-primary:hover { transform: scale(1.03); }
+        .btn-primary:active { transform: scale(0.97); }
+
+        /* Ticker Animation */
+        .ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .ticker-content { display: inline-block; animation: tick 30s linear infinite; }
+        @keyframes tick {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
-        /* Before/After Animation */
-        .before-after-container {
+        /* Before/After Slider */
+        .ba-container {
             position: relative;
             overflow: hidden;
-            border-radius: 1rem;
+            border-radius: 1.5rem;
             aspect-ratio: 16/9;
+            cursor: col-resize;
+            touch-action: none;
         }
-
-        .after-image {
+        .ba-after {
+            position: absolute;
+            inset: 0;
+            clip-path: inset(0 50% 0 0);
+        }
+        .ba-handle {
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: #A78BFA;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
             height: 100%;
-            object-fit: cover;
-            animation: slideReveal 4s ease-in-out infinite alternate;
-            border-left: 2px solid #8b5cf6;
+            width: 0%;
+            background: linear-gradient(90deg, #5B21B6, #8B5CF6, #C4B5FD);
+            box-shadow: 0 0 15px #7C3AED;
+            transition: width 0.4s ease;
         }
 
-        @keyframes slideReveal {
-            0% { clip-path: inset(0 100% 0 0); }
-            20% { clip-path: inset(0 100% 0 0); }
-            80% { clip-path: inset(0 0 0 0); }
-            100% { clip-path: inset(0 0 0 0); }
+        /* Reveal on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
         }
-
-        /* Progress Bar Animation */
-        .progress-fill {
-            transition: width 0.3s ease;
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
-
-        .log-entry {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Smooth scroll */
-        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="bg-gradient-purple min-h-screen">
+<body class="bg-glow">
 
-    <!-- Header / Logo Area -->
-    <nav class="p-6 flex justify-center items-center">
-        <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <i data-lucide="zap" class="text-white w-5 h-5"></i>
+    <!-- ══ SOCIAL PROOF TICKER ══ -->
+    <div class="relative z-50 border-b border-purple-900/30 py-2.5 bg-brand-deep/80 backdrop-blur-md">
+        <div class="ticker-wrap text-[10px] md:text-xs text-purple-400 font-medium">
+            <div class="ticker-content">
+                <span>&nbsp;🟢 Ahmed from US just generated &nbsp;·&nbsp; 🟢 Layla from CA unlocked access 2 min ago &nbsp;·&nbsp; 🟢 James from UK just verified &nbsp;·&nbsp; 🟢 Sofia from AU generated 4K video &nbsp;·&nbsp; 🟢 Noah from US generating now &nbsp;·&nbsp; 🟢 Emma from CA unlocked access &nbsp;·&nbsp;</span>
+                <span>&nbsp;🟢 Ahmed from US just generated &nbsp;·&nbsp; 🟢 Layla from CA unlocked access 2 min ago &nbsp;·&nbsp; 🟢 James from UK just verified &nbsp;·&nbsp; 🟢 Sofia from AU generated 4K video &nbsp;·&nbsp; 🟢 Noah from US generating now &nbsp;·&nbsp; 🟢 Emma from CA unlocked access &nbsp;·&nbsp;</span>
             </div>
-            <span class="text-xl font-bold tracking-tight">GEN<span class="text-purple-500">MOTION</span></span>
+        </div>
+    </div>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="relative z-40 flex items-center justify-between px-6 py-5 max-w-4xl mx-auto">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-brand-light to-brand-dark shadow-lg shadow-brand/40">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+            </div>
+            <span class="font-syne font-extrabold text-lg tracking-tight text-white uppercase">AI<span class="text-brand-light">Studio</span></span>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] md:text-xs font-bold text-red-300 glass rounded-full px-4 py-2 border-red-500/20">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span id="spots-left">47</span> SPOTS LEFT
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="px-6 pt-12 pb-20 text-center max-w-4xl mx-auto">
-        <div class="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest text-purple-400 uppercase bg-purple-900/30 border border-purple-500/30 rounded-full">
-            Next-Gen AI Video Engine
+    <!-- ══ HERO ══ -->
+    <section class="relative z-30 px-6 pt-8 pb-12 text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-6 text-[10px] font-bold text-brand-light uppercase tracking-[0.2em]">
+            <span class="text-yellow-400">★</span> 2026 NEXT-GEN AI
         </div>
-        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-            Transform Any Photo into <span class="text-gradient">4K Cinema Video</span> Instantly.
+
+        <h1 class="font-syne font-extrabold text-4xl md:text-6xl leading-[1.1] text-white mb-6">
+            Turn Any Photo Into<br/><span class="shimmer-text">4K Cinematic Video</span><br/>In Seconds.
         </h1>
-        <p class="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-            Unleash the power of Generative AI. No skills needed. <span class="text-white font-semibold">100% Free for a limited time.</span>
+
+        <p class="text-sm md:text-base mb-10 text-purple-200/60 max-w-md mx-auto leading-relaxed">
+            Powered by Generative AI. No technical skills needed.<br/>
+            <span class="text-brand-light font-bold">100% Free — Limited Time Access.</span>
         </p>
-        <a href="#generator" class="btn-pulse inline-flex items-center px-8 py-4 text-lg font-bold text-white bg-purple-600 rounded-2xl hover:bg-purple-700 transition-all transform hover:scale-105 active:scale-95">
-            Start Generating (Free Access)
-            <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+
+        <a href="#generator" class="btn-primary inline-block w-full max-w-sm py-5 rounded-2xl font-syne font-extrabold text-lg text-white shadow-xl">
+            ⚡ GET FREE ACCESS NOW
         </a>
-    </section>
+        <p class="text-[10px] mt-4 text-purple-400/40 font-medium tracking-wide">NO SIGNUP · NO CREDIT CARD · INSTANT RENDER</p>
 
-    <!-- Interactive Showcase -->
-    <section class="px-6 py-12 max-w-5xl mx-auto">
-        <div class="glass-card p-4 md:p-8">
-            <h3 class="text-center text-xl font-semibold mb-8 text-gray-300">Stunning Results in Seconds</h3>
-            <div class="before-after-container shadow-2xl shadow-purple-900/20">
-                <!-- Placeholder Before (Static) -->
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1200" alt="Static Photo" class="w-full h-full object-cover">
-                <!-- Placeholder After (Simulated Animated) -->
-                <div class="after-image bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1200'); filter: brightness(1.2) contrast(1.1);">
-                    <div class="absolute inset-0 bg-purple-600/10 mix-blend-overlay"></div>
-                    <!-- Subtle overlay text to show it's the 'after' -->
-                    <div class="absolute bottom-4 right-4 bg-purple-600 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest">4K AI Render</div>
-                </div>
-                <div class="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest border border-white/10">Original Photo</div>
+        <!-- Trust Badges -->
+        <div class="flex justify-center items-center gap-8 mt-12 opacity-80">
+            <div class="text-center">
+                <div class="font-syne font-extrabold text-xl text-white">2.4M+</div>
+                <div class="text-[10px] text-purple-400/60 uppercase font-bold tracking-tighter">Videos Made</div>
+            </div>
+            <div class="h-8 w-px bg-purple-900/50"></div>
+            <div class="text-center">
+                <div class="font-syne font-extrabold text-xl text-white">4.9 ★</div>
+                <div class="text-[10px] text-purple-400/60 uppercase font-bold tracking-tighter">User Rating</div>
+            </div>
+            <div class="h-8 w-px bg-purple-900/50"></div>
+            <div class="text-center">
+                <div class="font-syne font-extrabold text-xl text-white">4K/60</div>
+                <div class="text-[10px] text-purple-400/60 uppercase font-bold tracking-tighter">FPS Output</div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="px-6 py-20 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="glass-card p-8 text-center hover:border-purple-500/50 transition-colors">
-            <div class="w-12 h-12 bg-purple-900/50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="monitor" class="text-purple-400"></i>
+    <!-- ══ SHOWCASE (BEFORE/AFTER) ══ -->
+    <section class="reveal px-6 mb-16 max-w-2xl mx-auto">
+        <p class="text-center text-[10px] mb-4 uppercase tracking-[0.2em] font-bold text-purple-400/40">Slide to compare quality</p>
+        
+        <div class="ba-container glass shadow-2xl shadow-brand/20 border-brand/20" id="ba-slider">
+            <!-- Before Image -->
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1000&q=80" class="w-full h-full object-cover grayscale brightness-50" alt="Before AI">
+                <div class="absolute top-4 left-4 glass px-3 py-1 rounded-full text-[10px] font-bold text-white/60">ORIGINAL PHOTO</div>
             </div>
-            <h4 class="text-xl font-bold mb-3">4K Quality</h4>
-            <p class="text-gray-400 text-sm">Experience cinematic resolution with our high-fidelity neural upscaling.</p>
-        </div>
-        <div class="glass-card p-8 text-center hover:border-purple-500/50 transition-colors">
-            <div class="w-12 h-12 bg-purple-900/50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="brain-circuit" class="text-purple-400"></i>
-            </div>
-            <h4 class="text-xl font-bold mb-3">AI-Powered</h4>
-            <p class="text-gray-400 text-sm">Uses the latest industry-leading generative models for fluid motion.</p>
-        </div>
-        <div class="glass-card p-8 text-center hover:border-purple-500/50 transition-colors">
-            <div class="w-12 h-12 bg-purple-900/50 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="infinity" class="text-purple-400"></i>
-            </div>
-            <h4 class="text-xl font-bold mb-3">Unlimited Access</h4>
-            <p class="text-gray-400 text-sm">No daily limits for verified users. Create as much as you want.</p>
-        </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="px-6 py-12 max-w-4xl mx-auto">
-        <h3 class="text-center text-2xl font-bold mb-12">Trusted by 50,000+ Creators</h3>
-        <div class="space-y-6">
-            <div class="glass-card p-6 flex items-start space-x-4">
-                <div class="w-12 h-12 bg-purple-600 rounded-full flex-shrink-0 flex items-center justify-center font-bold">SP</div>
-                <div>
-                    <p class="text-gray-300 italic mb-2">"This tool changed my TikTok game! My engagement skyrocketed since I started using these AI animations."</p>
-                    <p class="text-purple-400 font-bold text-sm">— Sarah P., Content Creator</p>
-                </div>
-            </div>
-            <div class="glass-card p-6 flex items-start space-x-4">
-                <div class="w-12 h-12 bg-purple-600 rounded-full flex-shrink-0 flex items-center justify-center font-bold">MK</div>
-                <div>
-                    <p class="text-gray-300 italic mb-2">"I've tried many AI tools, but the motion quality here is on another level. Can't believe it's free."</p>
-                    <p class="text-purple-400 font-bold text-sm">— Marcus K., Digital Artist</p>
-                </div>
-            </div>
-            <div class="glass-card p-6 flex items-start space-x-4">
-                <div class="w-12 h-12 bg-purple-600 rounded-full flex-shrink-0 flex items-center justify-center font-bold">JL</div>
-                <div>
-                    <p class="text-gray-300 italic mb-2">"The 4K export is clean. Perfect for my YouTube intros. Highly recommended!"</p>
-                    <p class="text-purple-400 font-bold text-sm">— Jessica L., Video Editor</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- The Conversion Point (Generator) -->
-    <section id="generator" class="px-6 py-24 max-w-4xl mx-auto">
-        <div class="glass-card p-8 md:p-12 border-2 border-purple-500/30 relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4">
-                <span class="flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                </span>
-            </div>
-
-            <div id="gen-initial">
-                <h2 class="text-3xl font-bold mb-4 text-center">Ready to Claim Your Unlimited Free Credits?</h2>
-                <p class="text-gray-400 text-center mb-8">Upload a photo or enter a prompt to start your first 4K generation.</p>
-                
-                <div class="space-y-4">
-                    <div class="bg-black/40 border border-white/10 rounded-xl p-4 flex items-center justify-center border-dashed border-2 cursor-pointer hover:bg-black/60 transition-colors">
-                        <div class="text-center">
-                            <i data-lucide="upload-cloud" class="mx-auto mb-2 text-purple-400"></i>
-                            <span class="text-sm text-gray-400">Click to upload photo</span>
-                        </div>
-                    </div>
-                    <input type="text" placeholder="Describe the motion (e.g., 'Cinematic mountain sunset with moving clouds')" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-purple-500 transition-colors">
-                    <button onclick="startSimulation()" class="w-full py-4 bg-purple-600 rounded-xl font-bold text-lg hover:bg-purple-700 transition-all shadow-lg shadow-purple-900/40">
-                        GENERATE NOW
-                    </button>
-                </div>
-            </div>
-
-            <!-- Simulation State (Hidden by default) -->
-            <div id="gen-simulating" class="hidden">
-                <h2 class="text-2xl font-bold mb-8 text-center">Generating Your Video...</h2>
-                
-                <div class="w-full bg-black/50 rounded-full h-4 mb-6 overflow-hidden border border-white/10">
-                    <div id="progress-bar" class="progress-fill bg-purple-600 h-full w-0 shadow-[0_0_15px_rgba(139,92,246,0.5)]"></div>
-                </div>
-
-                <div id="log-container" class="bg-black/60 rounded-xl p-4 font-mono text-xs text-purple-300 h-32 overflow-y-auto space-y-1 mb-6">
-                    <!-- Logs will appear here -->
-                </div>
-            </div>
-
-            <!-- Final State (Hidden by default) -->
-            <div id="gen-final" class="hidden text-center">
-                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/50">
-                    <i data-lucide="check" class="text-green-500 w-8 h-8"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">Generation Complete!</h2>
-                <p class="text-gray-400 mb-8">Your 4K video is ready for download.</p>
-                
-                <div class="bg-purple-900/20 border border-purple-500/30 rounded-2xl p-6 mb-8">
-                    <h3 class="text-xl font-bold text-purple-300 mb-2">Verification Required</h3>
-                    <p class="text-sm text-gray-400">To prevent abuse and maintain service, please complete a quick 30-second verification to unlock your download and unlimited credits.</p>
-                </div>
-
-                <a href="YOUR_CONTENT_LOCKER_LINK_HERE" class="btn-pulse inline-block w-full py-5 bg-purple-600 rounded-2xl font-extrabold text-xl hover:bg-purple-700 transition-all shadow-xl shadow-purple-900/60">
-                    VERIFY & GET ACCESS NOW
-                </a>
-                <p class="mt-4 text-[10px] text-gray-500 uppercase tracking-widest">Safe & Secure Verification • Instant Unlock</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section class="px-6 py-20 max-w-4xl mx-auto">
-        <div class="glass-card p-8 md:p-12 text-center relative overflow-hidden">
-            <div class="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-bounce">
-                LIMITED OFFER
-            </div>
-            <h3 class="text-3xl font-bold mb-6">Pro Plan</h3>
-            <div class="flex justify-center items-baseline space-x-2 mb-8">
-                <span class="text-gray-500 text-2xl line-through">$29/month</span>
-                <span class="text-5xl font-extrabold text-white">FREE</span>
-            </div>
-            <p class="text-purple-400 font-semibold mb-10">Today: FREE (For First 50 Users)</p>
             
-            <ul class="text-left max-w-xs mx-auto space-y-4 mb-10">
-                <li class="flex items-center space-x-3">
-                    <i data-lucide="check-circle-2" class="text-purple-500 w-5 h-5"></i>
-                    <span class="text-gray-300">Unlimited 4K Generations</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i data-lucide="check-circle-2" class="text-purple-500 w-5 h-5"></i>
-                    <span class="text-gray-300">Priority AI Rendering</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i data-lucide="check-circle-2" class="text-purple-500 w-5 h-5"></i>
-                    <span class="text-gray-300">No Watermarks</span>
-                </li>
-            </ul>
+            <!-- After Image -->
+            <div class="ba-after" id="ba-after">
+                <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1000&q=80" class="w-full h-full object-cover brightness-110 saturate-125" style="animation: float 6s ease-in-out infinite" alt="After AI">
+                <div class="absolute inset-0 bg-brand/10 mix-blend-overlay"></div>
+                <div class="absolute top-4 right-4 glass px-3 py-1 rounded-full text-[10px] font-bold text-brand-light border-brand-light/30">● 4K AI RENDER</div>
+            </div>
+            
+            <!-- Slider Handle -->
+            <div class="ba-handle" id="ba-handle">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-brand-light/40 backdrop-blur-md border-2 border-brand-light flex items-center justify-center shadow-lg">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <path d="M18 8L22 12L18 16M6 8L2 12L6 16"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FEATURES ══ -->
+    <section class="reveal px-6 mb-16 max-w-3xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass rounded-2xl p-6 text-center group hover:border-brand/50 transition-all">
+                <div class="w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center bg-brand/20 text-brand-light">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                </div>
+                <h3 class="font-syne font-bold text-white mb-2">Cinema 4K</h3>
+                <p class="text-xs text-purple-400/70 leading-relaxed">Ultra-high resolution output ready for professional use.</p>
+            </div>
+            <div class="glass rounded-2xl p-6 text-center group hover:border-brand/50 transition-all">
+                <div class="w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center bg-brand/20 text-brand-light">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <h3 class="font-syne font-bold text-white mb-2">AI Neural Engine</h3>
+                <p class="text-xs text-purple-400/70 leading-relaxed">Latest generative models for realistic fluid motion.</p>
+            </div>
+            <div class="glass rounded-2xl p-6 text-center group hover:border-brand/50 transition-all">
+                <div class="w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center bg-brand/20 text-brand-light">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 class="font-syne font-bold text-white mb-2">Unlimited Use</h3>
+                <p class="text-xs text-purple-400/70 leading-relaxed">No daily limits or restrictions after verification.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ GENERATOR / CONVERSION ══ -->
+    <section id="generator" class="reveal px-6 mb-20 max-w-2xl mx-auto">
+        <div class="glass rounded-[2.5rem] p-8 md:p-12 border-brand/30 relative overflow-hidden shadow-2xl">
+            <!-- Glow background -->
+            <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand/20 rounded-full blur-[80px]"></div>
+            
+            <div id="gen-step-1" class="relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-[10px] font-bold text-brand-light mb-6">
+                    <span class="w-2 h-2 rounded-full bg-brand-light animate-ping"></span> ENGINE READY
+                </div>
+                <h2 class="font-syne font-extrabold text-2xl md:text-3xl text-white mb-4">Claim Your Unlimited Credits</h2>
+                <p class="text-sm text-purple-300/60 mb-8">Your generation slot is reserved for a limited time.</p>
+                
+                <!-- Countdown -->
+                <div class="flex items-center justify-center gap-2 mb-10">
+                    <div class="bg-brand/20 border border-brand/30 rounded-xl w-12 h-14 flex items-center justify-center font-syne font-bold text-2xl text-white" id="min">29</div>
+                    <div class="text-brand-light font-bold text-2xl">:</div>
+                    <div class="bg-brand/20 border border-brand/30 rounded-xl w-12 h-14 flex items-center justify-center font-syne font-bold text-2xl text-white" id="sec">59</div>
+                </div>
+
+                <button onclick="startProcessing()" class="btn-primary w-full py-5 rounded-2xl font-syne font-extrabold text-lg text-white">
+                    🚀 START 4K GENERATION
+                </button>
+            </div>
+
+            <div id="gen-step-2" class="hidden relative z-10">
+                <div class="text-center mb-8">
+                    <h2 class="font-syne font-extrabold text-2xl text-white mb-2">Processing...</h2>
+                    <p class="text-xs text-purple-400/60" id="status-text">Connecting to AI Neural Clusters...</p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full h-3 bg-brand-deep rounded-full overflow-hidden border border-brand/20 mb-6">
+                    <div id="progress-fill" class="progress-bar"></div>
+                </div>
+
+                <!-- Log Terminal -->
+                <div class="bg-black/60 rounded-2xl p-5 font-mono text-[10px] text-brand-light/80 h-32 overflow-hidden border border-brand/10">
+                    <div id="terminal-logs" class="space-y-1"></div>
+                </div>
+            </div>
+
+            <div id="gen-step-3" class="hidden relative z-10 text-center">
+                <div class="w-20 h-20 bg-yellow-500/20 border border-yellow-500/40 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB308" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                </div>
+                <h2 class="font-syne font-extrabold text-2xl text-white mb-4">Verification Required</h2>
+                <div class="glass rounded-2xl p-6 mb-8 border-yellow-500/20 bg-yellow-500/5">
+                    <p class="text-sm text-yellow-100/80 leading-relaxed">
+                        To prevent bot abuse and maintain 4K server speeds, please complete a quick <span class="text-yellow-400 font-bold">30-second human verification</span>.
+                    </p>
+                </div>
+
+                <!-- CTA -->
+                <a href="YOUR_OGADS_LOCKER_URL_HERE" class="btn-primary block w-full py-5 rounded-2xl font-syne font-extrabold text-lg text-white">
+                    🔓 VERIFY & UNLOCK ACCESS
+                </a>
+                <p class="text-[10px] mt-4 text-purple-400/40 font-medium uppercase tracking-widest">Instant Unlock After Completion</p>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="px-6 py-12 border-t border-white/5 text-center">
-        <div class="flex items-center justify-center space-x-2 mb-6">
-            <div class="w-6 h-6 bg-purple-600/50 rounded flex items-center justify-center">
-                <i data-lucide="zap" class="text-white w-3 h-3"></i>
+    <footer class="px-6 py-12 text-center border-t border-purple-900/20 max-w-4xl mx-auto">
+        <div class="flex items-center justify-center gap-2 mb-6 opacity-40">
+            <div class="w-6 h-6 rounded bg-brand flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
-            <span class="text-sm font-bold tracking-tight text-gray-400">GENMOTION PRO</span>
+            <span class="font-syne font-bold text-xs tracking-widest text-white">AI STUDIO PRO</span>
         </div>
-        <p class="text-gray-600 text-xs mb-4">© 2026 GenMotion Pro. All rights reserved.</p>
-        <div class="flex justify-center space-x-6 text-[10px] text-gray-500 uppercase tracking-widest">
-            <a href="#" class="hover:text-purple-400">Terms of Service</a>
-            <a href="#" class="hover:text-purple-400">Privacy Policy</a>
-            <a href="#" class="hover:text-purple-400">Contact Support</a>
-        </div>
+        <p class="text-[10px] text-purple-400/30 uppercase tracking-[0.3em]">© 2026 GENMOTION TECHNOLOGY · ALL RIGHTS RESERVED</p>
     </footer>
 
     <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
+        // Reveal on Scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
 
-        function startSimulation() {
-            const initial = document.getElementById('gen-initial');
-            const simulating = document.getElementById('gen-simulating');
-            const final = document.getElementById('gen-final');
-            const progressBar = document.getElementById('progress-bar');
-            const logContainer = document.getElementById('log-container');
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-            initial.classList.add('hidden');
-            simulating.classList.remove('hidden');
+        // Before/After Slider
+        const slider = document.getElementById('ba-slider');
+        const afterImg = document.getElementById('ba-after');
+        const handle = document.getElementById('ba-handle');
 
+        const moveSlider = (e) => {
+            const rect = slider.getBoundingClientRect();
+            const x = (e.pageX || e.touches[0].pageX) - rect.left;
+            const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            afterImg.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            handle.style.left = `${percent}%`;
+        };
+
+        slider.addEventListener('mousemove', moveSlider);
+        slider.addEventListener('touchmove', moveSlider);
+
+        // Countdown Timer
+        let timeLeft = 1799; // 29:59
+        const updateTimer = () => {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('min').innerText = m.toString().padStart(2, '0');
+            document.getElementById('sec').innerText = s.toString().padStart(2, '0');
+            if (timeLeft > 0) timeLeft--;
+        };
+        setInterval(updateTimer, 1000);
+
+        // Spot Counter
+        let spots = 47;
+        setInterval(() => {
+            if (spots > 3) {
+                spots -= Math.floor(Math.random() * 2);
+                document.getElementById('spots-left').innerText = spots;
+            }
+        }, 5000);
+
+        // Processing Logic
+        function startProcessing() {
+            document.getElementById('gen-step-1').classList.add('hidden');
+            document.getElementById('gen-step-2').classList.remove('hidden');
+            
             const logs = [
-                "Initializing GenMotion AI Engine...",
-                "Analyzing image composition...",
-                "Detecting depth maps and structures...",
-                "Generating motion vectors...",
-                "Applying temporal consistency filters...",
-                "Optimizing 4K frames...",
-                "Syncing audio layers...",
-                "Finalizing render..."
+                "Initializing Neural Engine...",
+                "Allocating 4K Render Buffers...",
+                "Analyzing Frame Consistency...",
+                "Injecting Motion Vectors...",
+                "Applying Temporal Upscaling...",
+                "Optimizing Light Diffusion...",
+                "Finalizing Cinematic Export..."
             ];
-
+            
+            const progressFill = document.getElementById('progress-fill');
+            const terminal = document.getElementById('terminal-logs');
+            const statusText = document.getElementById('status-text');
+            
             let progress = 0;
-            let logIndex = 0;
-
+            let logIdx = 0;
+            
             const interval = setInterval(() => {
                 progress += Math.random() * 15;
-                if (progress > 100) progress = 100;
-                
-                progressBar.style.width = progress + '%';
-
-                // Add logs periodically
-                if (progress > (logIndex + 1) * (100 / logs.length) && logIndex < logs.length) {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = 'log-entry';
-                    logEntry.innerHTML = `<span class="text-gray-500">[${new Date().toLocaleTimeString()}]</span> ${logs[logIndex]}`;
-                    logContainer.appendChild(logEntry);
-                    logContainer.scrollTop = logContainer.scrollHeight;
-                    logIndex++;
-                }
-
                 if (progress >= 100) {
+                    progress = 100;
                     clearInterval(interval);
                     setTimeout(() => {
-                        simulating.classList.add('hidden');
-                        final.classList.remove('hidden');
-                        // Scroll to the final section to ensure they see the CTA
-                        final.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        document.getElementById('gen-step-2').classList.add('hidden');
+                        document.getElementById('gen-step-3').classList.remove('hidden');
                     }, 800);
                 }
-            }, 400);
+                
+                progressFill.style.width = progress + '%';
+                
+                if (progress > (logIdx + 1) * (100 / logs.length) && logIdx < logs.length) {
+                    const log = document.createElement('div');
+                    log.innerHTML = `<span class="text-purple-600">>></span> ${logs[logIdx]}`;
+                    terminal.appendChild(log);
+                    statusText.innerText = logs[logIdx];
+                    logIdx++;
+                }
+            }, 500);
         }
     </script>
 </body>
